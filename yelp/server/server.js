@@ -4,23 +4,20 @@ const app = express();
 const port = process.env.PORT;
 const morgan = require("morgan");
 const db = require("./db")
+const cors = require("cors")
 
 // morgan middleware
 app.use(morgan("tiny"))
 
+app.use(cors())
 app.use(express.json())
-
-// middleware
-app.use((req, res, next) => {
-    console.log("We are in the middleware");
-    next();
-})
 
 // Get all restaurants
 app.get("/api/v1/restaurants", async (req, res) => {
     try {
         const results = await db.query("select * from restaurants")
-        res.status(404).json({
+        console.log(results)
+        res.status(201).json({
             status: "success",
             data_count: results.rows.length,
             data: {
@@ -72,7 +69,6 @@ app.put("/api/v1/restaurants/:id", async (req, res) => {
             "UPDATE restaurants SET name=$1, location=$2, price_range=$3 WHERE id=$4 returning *",
             [req.body.name, req.body.location, req.body.price_range, req.params.id]
         )
-        console.log(result)
         res.status(200).json({
             status:"success",
             data: {
